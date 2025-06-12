@@ -54,3 +54,9 @@ class TicTacToe(Game):
     
     def encode_state(self, state):
         return state.state.flatten()
+    
+    def action_space_size(self):
+        return 9
+    
+    def state_space_size(self): 
+        return 9

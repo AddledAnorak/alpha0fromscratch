@@ -32,3 +32,9 @@ class Game(ABC):
 
     def encode_state(self, state):
         pass
+
+    def action_space_size(self):
+        pass
+
+    def state_space_size(self):
+        pass

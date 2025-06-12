@@ -76,6 +76,15 @@ class BasicModel:
         x = torch.cat((state, action), dim=-1)
         q_value = self.q_network(x)
         return q_value
+    
+    def parameters(self):
+        return list(self.policy_value.parameters()) + list(self.q_network.parameters())
+    
+    def state_dict(self):
+        return {
+            'policy_value': self.policy_value.state_dict(),
+            'q_network': self.q_network.state_dict()
+        }
 
 
 class RandomModel:

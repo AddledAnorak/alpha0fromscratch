@@ -5,6 +5,7 @@ from copy import deepcopy
 
 from game_env import Game, GameState
 from tictactoe import TicTacToe
+from connectfour import ConnectFour
 from networks import *
 
 
@@ -14,12 +15,12 @@ class MCTS_Node:
             game: Game, 
             state: GameState, 
             action_taken=None,
-            player=1, 
-            reward=0, 
-            parent=None, 
-            prob_prior=1, 
-            exploration_weight=1.0,
-            node_id=0
+            player: int=1, 
+            reward: float=0, 
+            parent: 'MCTS_Node'=None, 
+            prob_prior: float=1, 
+            exploration_weight: float=1.0,
+            node_id: int=0
         ):
         self.node_id = node_id
         self.parent = parent
@@ -53,7 +54,7 @@ class MCTS_Node:
         else:
             q_value = -child.value_sum / child.visits
         return q_value + self.exploration_weight * child.prob_prior * (math.sqrt(self.visits) / (1 + child.visits))
-        
+
     def best_child(self):
         return max(self.children, key=lambda c: self.get_ucb(c))
     
@@ -120,7 +121,7 @@ class MCTS:
 
             parent.backpropagate(value)
         
-        probs = np.zeros(9)
+        probs = np.zeros(self.game.action_space_size())
         for child in root.children:
             probs[child.action_taken] = child.visits
         probs /= np.sum(probs)
@@ -131,7 +132,7 @@ class MCTS:
 if __name__ == "__main__":
     # model = BasicModel(state_size=9, action_size=9, hidden_sizes=[128, 128])
     model = RandomModel(state_size=9, action_size=9)
-    game = TicTacToe()
+    game = ConnectFour()
     state = game.start() # from model's view
     mcts = MCTS(game, model, num_simulations=1000, exploration_weight=1.0)
 
@@ -140,7 +141,7 @@ if __name__ == "__main__":
         human_state = game.flip_board(state)
         print(human_state.state)
         while True:
-            action = int(input("Enter your move (0-8): "))
+            action = int(input("Enter your move (0-6): "))
             if not game.is_valid_action(human_state, action):
                 print("Invalid move. Try again.")
                 continue
@@ -154,11 +155,13 @@ if __name__ == "__main__":
             print("Game over!")
             break
 
-        # AI move
-        print("AI BOARD:")
-        print(state.state)
+        # # AI move
+        # print("AI BOARD:")
+        # print(state.state)
 
-        action, prob = mcts.search(state)
+        probs = mcts.search(state)
+
+        action = np.argmax(probs)
         state, _ = game.move(state, action)
 
         if state.is_terminal:
