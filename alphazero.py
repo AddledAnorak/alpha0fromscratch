@@ -79,23 +79,20 @@ class AlphaZeroPointZero:
 
     
     def save(self):
-        torch.save(self.model.state_dict(), 'model.pth')
-        print("Model saved to model.pth")
-
-        # Save the data for future use
-        np.save('self_play_data.npy', self.data)
-        print("Self-play data saved to self_play_data.npy")
+        torch.save(self.model.state_dict(), 'checkpoints/model.pth')
+        print("Model saved to checkpoints/model.pth")
 
 
     def learn(self):
+        self.save()
         for _ in range(self.k):
             # collect data
             for _ in tqdm(range(self.num_plays // self.k)):
                 self.self_play_rollout()
             # train the model using sft
             self.train()
-
         self.save()
+
 
 
 if __name__ == "__main__":
