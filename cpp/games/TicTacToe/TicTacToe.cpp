@@ -31,7 +31,7 @@ bool TicTacToe::checkWinner(const std::array<std::array<int, 3>, 3>& state) {
     return false;
 }
 
-GameState TicTacToe::move(const GameState& state, int action) {
+std::pair<GameState, float> TicTacToe::move(const GameState& state, int action) {
     if (!isValidAction(state, action)) {
         throw std::invalid_argument("Invalid action");
     }
@@ -44,6 +44,7 @@ GameState TicTacToe::move(const GameState& state, int action) {
     (*newState)[row][col] = 1;
 
     bool isTerminal = checkWinner(*newState);
+    float reward = isTerminal? 1:0;
     if (!isTerminal) {
         // Check if board is full
         isTerminal = true;
@@ -58,7 +59,7 @@ GameState TicTacToe::move(const GameState& state, int action) {
         }
     }
 
-    return GameState(newState, isTerminal);
+    return std::make_pair(GameState(newState, isTerminal), reward);
 }
 
 void TicTacToe::setState(GameState& state, int player) {

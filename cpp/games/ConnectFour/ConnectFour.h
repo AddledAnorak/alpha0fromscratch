@@ -10,7 +10,7 @@ public:
     ~ConnectFour() override;
 
     GameState start() override;
-    GameState move(const GameState& state, int action) override;
+    std::pair<GameState, float> move(const GameState& state, int action) override;
     void setState(GameState& state, int player) override;
     GameState flipBoard(const GameState& state) override;
     bool isValidAction(const GameState& state, int action) override;
@@ -19,6 +19,9 @@ public:
     std::vector<float> encodeState(const GameState& state) override;
     int actionSpaceSize() override;
     int stateSpaceSize() override;
+    
+    // Helper method to display the board
+    void displayBoard(const GameState& state) const;
 
 private:
     bool checkWinner(const std::array<std::array<int, 7>, 6>& state);

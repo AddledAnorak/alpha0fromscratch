@@ -110,7 +110,7 @@ class MCTS:
                 encoded_state = torch.tensor(self.game.encode_state(parent.state))
                 policy, value = self.model.predict(encoded_state)
                 policy = policy.detach().numpy()
-                validity = [self.game.is_valid_action(parent.state, action) for action in range(9)]
+                validity = [self.game.is_valid_action(parent.state, action) for action in range(self.game.action_space_size())]
                 policy = policy * validity
                 policy /= np.sum(policy)
                 value = value.detach().item()
@@ -120,19 +120,19 @@ class MCTS:
                 value = parent.reward
 
             parent.backpropagate(value)
-        
+
+
         probs = np.zeros(self.game.action_space_size())
         for child in root.children:
             probs[child.action_taken] = child.visits
-        probs /= np.sum(probs)
 
         return probs
 
 
 if __name__ == "__main__":
-    # model = BasicModel(state_size=9, action_size=9, hidden_sizes=[128, 128])
-    model = RandomModel(state_size=9, action_size=9)
     game = ConnectFour()
+    # model = BasicModel(state_size=9, action_size=9, hidden_sizes=[128, 128])
+    model = RandomModel(state_size=game.state_space_size(), action_size=game.action_space_size())
     state = game.start() # from model's view
     mcts = MCTS(game, model, num_simulations=1000, exploration_weight=1.0)
 

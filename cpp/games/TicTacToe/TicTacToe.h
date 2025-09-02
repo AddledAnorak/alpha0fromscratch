@@ -10,7 +10,7 @@ public:
     ~TicTacToe() override;
 
     GameState start() override;
-    GameState move(const GameState& state, int action) override;
+    std::pair<GameState, float> move(const GameState& state, int action) override;
     void setState(GameState& state, int player) override;
     GameState flipBoard(const GameState& state) override;
     bool isValidAction(const GameState& state, int action) override;

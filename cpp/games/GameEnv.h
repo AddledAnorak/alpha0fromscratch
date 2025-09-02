@@ -18,7 +18,7 @@ public:
     virtual ~Game();
 
     virtual GameState start() = 0;
-    virtual GameState move(const GameState& state, int action) = 0;
+    virtual std::pair<GameState, float> move(const GameState& state, int action) = 0;
     virtual void setState(GameState& state, int player) = 0;
     virtual GameState flipBoard(const GameState& state) = 0;
     virtual bool isValidAction(const GameState& state, int action) = 0;
@@ -27,6 +27,8 @@ public:
     virtual std::vector<float> encodeState(const GameState& state) = 0;
     virtual int actionSpaceSize() = 0;
     virtual int stateSpaceSize() = 0;
+    // Helper method to display the board
+    virtual void displayBoard(const GameState& state) const = 0;
 };
 
 #endif // GAME_ENV_H

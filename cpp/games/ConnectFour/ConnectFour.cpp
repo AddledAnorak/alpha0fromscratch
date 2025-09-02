@@ -1,5 +1,6 @@
 #include "ConnectFour.h"
 #include <stdexcept>
+#include <iostream>
 
 ConnectFour::ConnectFour() = default;
 ConnectFour::~ConnectFour() = default;
@@ -70,7 +71,7 @@ bool ConnectFour::checkWinner(const std::array<std::array<int, COLS>, ROWS>& sta
     return false;
 }
 
-GameState ConnectFour::move(const GameState& state, int action) {
+std::pair<GameState, float> ConnectFour::move(const GameState& state, int action) {
     if (!isValidAction(state, action)) {
         throw std::invalid_argument("Invalid action");
     }
@@ -87,6 +88,7 @@ GameState ConnectFour::move(const GameState& state, int action) {
     (*newState)[rowIdx][action] = 1;
 
     bool isTerminal = checkWinner(*newState);
+    float reward = isTerminal? 1:0;
     if (!isTerminal) {
         // Check if board is full
         isTerminal = true;
@@ -101,7 +103,7 @@ GameState ConnectFour::move(const GameState& state, int action) {
         }
     }
 
-    return GameState(newState, isTerminal);
+    return std::make_pair(GameState(newState, isTerminal), reward);
 }
 
 void ConnectFour::setState(GameState& state, int player) {
@@ -168,4 +170,38 @@ int ConnectFour::actionSpaceSize() {
 
 int ConnectFour::stateSpaceSize() {
     return ROWS * COLS;
+}
+
+void ConnectFour::displayBoard(const GameState& state) const {
+    auto* board = static_cast<std::array<std::array<int, COLS>, ROWS>*>(state.state);
+    
+    // Print column numbers
+    std::cout << "  ";
+    for (int col = 0; col < COLS; col++) {
+        std::cout << col << " ";
+    }
+    std::cout << std::endl;
+    
+    // Print the board
+    for (int row = 0; row < ROWS; row++) {
+        std::cout << "| ";
+        for (int col = 0; col < COLS; col++) {
+            char symbol;
+            switch ((*board)[row][col]) {
+                case 1:  symbol = 'X'; break;  // Current player
+                case -1: symbol = 'O'; break;  // Opponent
+                case 0:  symbol = '.'; break;  // Empty
+                default: symbol = '?'; break;  // Unknown
+            }
+            std::cout << symbol << " ";
+        }
+        std::cout << "|" << std::endl;
+    }
+    
+    // Print bottom border
+    std::cout << "+";
+    for (int col = 0; col < COLS; col++) {
+        std::cout << "--";
+    }
+    std::cout << "+" << std::endl;
 }
