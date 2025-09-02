@@ -1,6 +1,7 @@
 #include "algorithms/mcts.h"
 #include "games/ConnectFour/ConnectFour.h"
 #include "games/TicTacToe/TicTacToe.h"
+#include <chrono>
 #include <iostream>
 #include <memory>
 
@@ -10,7 +11,7 @@ int main() {
     auto game = std::make_unique<ConnectFour>();
     
     // Initialize MCTS
-    MCTS mcts(game.get(), model.get(), 1000, 1.0f);
+    MCTS mcts(game.get(), model.get(), 10000, 1.0f);
     
     // Start the game
     GameState state = game->start(); // From AI's perspective
@@ -48,21 +49,14 @@ int main() {
             std::cout << "Game over!" << std::endl;
             break;
         }
-
-        std::cout << "\nAI's perspective board:" << std::endl;
-        game->displayBoard(state);
         
         // AI move
         std::cout << "\nAI is thinking..." << std::endl;
+        auto start = std::chrono::high_resolution_clock::now();
         std::vector<float> probs = mcts.search(state);
+        auto end = std::chrono::high_resolution_clock::now();
+        auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
 
-        // print probs
-        std::cout << "AI action probabilities: ";
-        for (size_t i = 0; i < probs.size(); ++i) {
-            std::cout << "Action " << i << ": " << probs[i] << " ";
-        }
-        std::cout << std::endl;
-        
         // Find the action with highest probability
         int bestAction = 0;
         float bestProb = probs[0];
@@ -72,8 +66,9 @@ int main() {
                 bestAction = static_cast<int>(i);
             }
         }
-        
-        std::cout << "AI chooses column: " << bestAction << std::endl;
+
+        std::cout << "AI chooses column: " << bestAction 
+                  << " (took " << duration << " ms)" << std::endl;
         
         // Apply AI move
         auto [nextState, _] = game->move(state, bestAction);

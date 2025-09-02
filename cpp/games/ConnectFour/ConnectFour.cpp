@@ -13,6 +13,12 @@ GameState ConnectFour::start() {
     return GameState(initialState, false);
 }
 
+bool ConnectFour::checkEq(const GameState& lhs, const GameState& rhs) const {
+    return lhs.isTerminal == rhs.isTerminal &&
+           *static_cast<std::array<std::array<int, COLS>, ROWS>*>(lhs.state) ==
+           *static_cast<std::array<std::array<int, COLS>, ROWS>*>(rhs.state);
+}
+
 bool ConnectFour::checkWinner(const std::array<std::array<int, COLS>, ROWS>& state) {
     // Check horizontal, vertical, and diagonal connections
     for (int row = 0; row < ROWS; row++) {

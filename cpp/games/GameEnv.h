@@ -29,6 +29,7 @@ public:
     virtual int stateSpaceSize() = 0;
     // Helper method to display the board
     virtual void displayBoard(const GameState& state) const = 0;
+    virtual bool checkEq(const GameState& lhs, const GameState& rhs) const = 0;
 };
 
 #endif // GAME_ENV_H

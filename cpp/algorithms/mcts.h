@@ -70,6 +70,21 @@ private:
     float explorationWeight;
 };
 
+class MCTS2 {
+public:
+    MCTS2(Game* game, Model* model, int numSimulations = 1000, float explorationWeight = 1.0f);
+    ~MCTS2() = default;
+
+    std::vector<float> search(const GameState& state);
+
+private:
+    Game* game;
+    Model* model;
+    std::unique_ptr<MCTSNode> root;
+    int numSimulations;
+    float explorationWeight;
+};
+
 // Simple random model implementation for testing
 class RandomModel : public Model {
 public:

@@ -8,7 +8,11 @@ SOURCES = main.cpp algorithms/mcts.cpp games/GameEnv.cpp games/TicTacToe/TicTacT
 OBJECTS = $(SOURCES:%.cpp=$(OBJDIR)/%.o)
 TARGET = alpha0
 
-.PHONY: all clean debug
+BOTBATTLE_LIBSOURCES = algorithms/mcts.cpp games/GameEnv.cpp games/TicTacToe/TicTacToe.cpp games/ConnectFour/ConnectFour.cpp
+BOTBATTLE_LIBOBJECTS = $(BOTBATTLE_LIBSOURCES:%.cpp=$(OBJDIR)/%.o)
+BATTLE_TARGET = botBattle
+
+.PHONY: all clean debug battle
 
 all: $(TARGET)
 
@@ -22,8 +26,18 @@ $(OBJDIR)/%.o: %.cpp
 	@mkdir -p $(dir $@)
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
+battle: $(BATTLE_TARGET)
+	./$(BATTLE_TARGET)
+
+$(BATTLE_TARGET): $(OBJDIR)/botBattle.o $(BOTBATTLE_LIBOBJECTS)
+	$(CXX) $(CXXFLAGS) -o $@ $^
+
+$(OBJDIR)/botBattle.o: botBattle.cpp
+	@mkdir -p $(dir $@)
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
+
 clean:
-	rm -rf $(OBJDIR) $(TARGET)
+	rm -rf $(OBJDIR) $(TARGET) $(BATTLE_TARGET)
 
 # Dependencies (simplified - in a real project you'd use dependency generation)
 $(OBJDIR)/main.o: main.cpp algorithms/mcts.h games/ConnectFour/ConnectFour.h games/TicTacToe/TicTacToe.h

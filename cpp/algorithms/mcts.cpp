@@ -161,12 +161,6 @@ std::vector<float> MCTS::search(const GameState& state) {
         totalVisits += child->visits;
     }
 
-    std::cout << "unnormalized probs: ";
-    for (float prob : probs) {
-        std::cout << prob << " ";
-    }
-    std::cout << std::endl;
-
     // Normalize probabilities
     if (totalVisits > 0.0f) {
         for (float& prob : probs) {
@@ -176,6 +170,118 @@ std::vector<float> MCTS::search(const GameState& state) {
     
     return probs;
 }
+
+
+MCTS2::MCTS2(Game* game, Model* model, int numSimulations, float explorationWeight)
+    : game(game), model(model), numSimulations(numSimulations), 
+      explorationWeight(explorationWeight) {
+    root = nullptr;
+}
+
+
+std::vector<float> MCTS2::search(const GameState& state) {
+    // check if any of the child states are equal to state 2 levels down
+    bool createNew = true;
+    if (root) {
+        for (auto& child : root->children) {
+            if (game->checkEq(child->state, state)) {
+                // If we found a matching child, we can use it
+                root = std::move(child);
+                root->parent = nullptr;
+                createNew = false;
+                break;
+            }
+        }
+    }
+
+    if(createNew)
+        root = std::make_unique<MCTSNode>(game, state, -1, 1, 0.0f, nullptr, 1.0f, explorationWeight);
+    
+    for (int i = 0; i < numSimulations; ++i) {
+        MCTSNode* parent = root.get();
+        
+        // Selection phase
+        while (parent->isFullyExpanded()) {
+            if (parent->state.isTerminal) {
+                break;
+            }
+            parent = parent->bestChild();
+        }
+        
+        float value;
+        
+        if (!parent->state.isTerminal) {
+            // Expansion and evaluation phase
+            std::vector<float> encodedState = game->encodeState(parent->state);
+            auto [policy, predictedValue] = model->predict(encodedState);
+            
+            // Apply validity mask to policy
+            std::vector<int> validActions = game->getValidActions(parent->state);
+            std::vector<float> validity(game->actionSpaceSize(), 0.0f);
+            for (int action : validActions) {
+                validity[action] = 1.0f;
+            }
+            
+            // Element-wise multiplication and normalization
+            float policySum = 0.0f;
+            for (size_t j = 0; j < policy.size(); ++j) {
+                policy[j] *= validity[j];
+                policySum += policy[j];
+            }
+            
+            if (policySum > 0.0f) {
+                for (float& p : policy) {
+                    p /= policySum;
+                }
+            }
+            
+            parent->expand(policy);
+            value = predictedValue;
+        } else {
+            value = parent->reward;
+        }
+        
+        // Backpropagation phase
+        parent->backpropagate(value);
+    }
+    
+    // Calculate action probabilities based on visit counts
+    std::vector<float> probs(game->actionSpaceSize(), 0.0f);
+    float totalVisits = 0.0f;
+    
+    for (const auto& child : root->children) {
+        probs[child->actionTaken] = static_cast<float>(child->visits);
+        totalVisits += child->visits;
+    }
+
+    // Normalize probabilities
+    if (totalVisits > 0.0f) {
+        for (float& prob : probs) {
+            prob /= totalVisits;
+        }
+    }
+
+    // !ASSUMPTION
+    // assume that game continues and we pick highest prob state
+    int bestAction = 0;
+    float bestProb = probs[0];
+    for (size_t i = 1; i < probs.size(); ++i) {
+        if (probs[i] > bestProb) {
+            bestProb = probs[i];
+            bestAction = static_cast<int>(i);
+        }
+    }
+    for(auto &child : root->children) {
+        if (child->actionTaken == bestAction) {
+            root = std::move(child);
+            root->parent = nullptr;
+            break;
+        }
+    }
+
+    return probs;
+}
+
 
 // RandomModel implementation
 RandomModel::RandomModel(int stateSize, int actionSize)

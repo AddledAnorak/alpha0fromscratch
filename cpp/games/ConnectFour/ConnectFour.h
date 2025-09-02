@@ -23,6 +23,8 @@ public:
     // Helper method to display the board
     void displayBoard(const GameState& state) const;
 
+    bool checkEq(const GameState& lhs, const GameState& rhs) const;
+
 private:
     bool checkWinner(const std::array<std::array<int, 7>, 6>& state);
     static const int ROWS = 6;
