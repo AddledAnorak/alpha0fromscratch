@@ -4,7 +4,7 @@
 #include "../GameEnv.h"
 #include <array>
 
-class ConnectFour : public Game {
+class ConnectFour : public Game<int> {
 public:
     ConnectFour();
     ~ConnectFour() override;

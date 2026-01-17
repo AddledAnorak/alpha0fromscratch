@@ -4,7 +4,7 @@
 #include "../GameEnv.h"
 #include <array>
 
-class TicTacToe : public Game {
+class TicTacToe : public Game<int> {
 public:
     TicTacToe();
     ~TicTacToe() override;

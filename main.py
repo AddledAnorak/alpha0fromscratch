@@ -22,7 +22,7 @@ if __name__ == "__main__":
     # model = BasicModel(state_size=9, action_size=9, hidden_sizes=[128, 128])
     game = ConnectFour()
     model = RandomModel(state_size=game.state_space_size(), action_size=game.action_space_size())
-    mcts = MCTS(game, model, num_simulations=1000, exploration_weight=1.0)
+    mcts = MCTS(game, model, num_simulations=10_000, exploration_weight=1.0)
     state = game.start() # from model's view
 
     while True:

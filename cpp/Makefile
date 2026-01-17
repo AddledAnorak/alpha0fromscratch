@@ -1,6 +1,14 @@
 CXX = g++
 CXXFLAGS = -std=c++17 -Wall -Wextra -O3 -DNDEBUG
-DEBUG_FLAGS = -std=c++17 -Wall -Wextra -g -O0
+
+# Path to LibTorch (adjust if different)
+LIBTORCH_PATH = /home/shoan/libtorch
+CXXFLAGS += -I$(LIBTORCH_PATH)/include -I$(LIBTORCH_PATH)/include/torch/csrc/api/include
+CXXFLAGS += -isystem $(LIBTORCH_PATH)/include -isystem $(LIBTORCH_PATH)/include/torch/csrc/api/include
+LDFLAGS = -L$(LIBTORCH_PATH)/lib -Wl,-rpath=$(LIBTORCH_PATH)/lib
+LDLIBS = -ltorch -ltorch_cpu -lc10
+
+DEBUG_FLAGS = -std=c++17 -Wall -Wextra -g -O0 -I$(LIBTORCH_PATH)/include -I$(LIBTORCH_PATH)/include/torch/csrc/api/include
 
 SRCDIR = .
 OBJDIR = build
@@ -20,7 +28,7 @@ debug: CXXFLAGS = $(DEBUG_FLAGS)
 debug: $(TARGET)
 
 $(TARGET): $(OBJECTS)
-	$(CXX) $(CXXFLAGS) -o $@ $^
+	$(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGS) $(LDLIBS)
 
 $(OBJDIR)/%.o: %.cpp
 	@mkdir -p $(dir $@)
@@ -30,7 +38,7 @@ battle: $(BATTLE_TARGET)
 	./$(BATTLE_TARGET)
 
 $(BATTLE_TARGET): $(OBJDIR)/botBattle.o $(BOTBATTLE_LIBOBJECTS)
-	$(CXX) $(CXXFLAGS) -o $@ $^
+	$(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGS) $(LDLIBS)
 
 $(OBJDIR)/botBattle.o: botBattle.cpp
 	@mkdir -p $(dir $@)
@@ -39,7 +47,7 @@ $(OBJDIR)/botBattle.o: botBattle.cpp
 clean:
 	rm -rf $(OBJDIR) $(TARGET) $(BATTLE_TARGET)
 
-# Dependencies (simplified - in a real project you'd use dependency generation)
+# Dependencies
 $(OBJDIR)/main.o: main.cpp algorithms/mcts.h games/ConnectFour/ConnectFour.h games/TicTacToe/TicTacToe.h
 $(OBJDIR)/algorithms/mcts.o: algorithms/mcts.cpp algorithms/mcts.h games/GameEnv.h
 $(OBJDIR)/games/GameEnv.o: games/GameEnv.cpp games/GameEnv.h

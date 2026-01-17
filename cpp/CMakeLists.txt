@@ -3,9 +3,13 @@ project(Alpha0FromScratch)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_PREFIX_PATH "/home/shoan/libtorch")
+
+find_package(Torch REQUIRED)
 
 # Add include directories
 include_directories(${CMAKE_SOURCE_DIR})
+include_directories(SYSTEM ${TORCH_INCLUDE_DIRS})
 
 # Create a library for game environments
 add_library(games 
@@ -27,7 +31,7 @@ add_library(algorithms
 add_executable(alpha0 main.cpp)
 
 # Link libraries
-target_link_libraries(alpha0 algorithms games)
+target_link_libraries(alpha0 algorithms games "${TORCH_LIBRARIES}")
 
 # Set compiler flags for debugging and optimization
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")

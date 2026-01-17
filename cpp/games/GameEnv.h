@@ -18,11 +18,11 @@ public:
     virtual ~Game();
 
     virtual GameState start() = 0;
-    virtual std::pair<GameState, float> move(const GameState& state, int action) = 0;
+    virtual std::pair<GameState, float> move(const GameState& state, T action) = 0;
     virtual void setState(GameState& state, int player) = 0;
     virtual GameState flipBoard(const GameState& state) = 0;
     virtual bool isValidAction(const GameState& state, int action) = 0;
-    virtual std::vector<int> getValidActions(const GameState& state) = 0;
+    virtual std::vector<T> getValidActions(const GameState& state) = 0;
     virtual float getOpponentReward(float reward) = 0;
     virtual std::vector<float> encodeState(const GameState& state) = 0;
     virtual int actionSpaceSize() = 0;

@@ -178,7 +178,6 @@ MCTS2::MCTS2(Game* game, Model* model, int numSimulations, float explorationWeig
     root = nullptr;
 }
 
-
 std::vector<float> MCTS2::search(const GameState& state) {
     // check if any of the child states are equal to state 2 levels down
     bool createNew = true;

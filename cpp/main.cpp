@@ -5,6 +5,7 @@
 #include <iostream>
 #include <memory>
 
+
 int main() {
     // Create a random model and ConnectFour game
     auto model = std::make_unique<RandomModel>(42, 7); // ConnectFour state/action sizes

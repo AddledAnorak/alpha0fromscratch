@@ -6,8 +6,10 @@ GameState::GameState(void* state, bool isTerminal)
 }
 
 // Game implementation
-Game::Game() {
+template<typename T>
+Game<T>::Game() {
 }
 
-Game::~Game() {
+template<typename T>
+Game<T>::~Game() {
 }
